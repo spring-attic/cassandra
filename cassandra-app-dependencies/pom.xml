@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>cassandra-app-dependencies</artifactId>
+    <packaging>pom</packaging>
+    <name>cassandra-app-dependencies</name>
+    <description>Spring Cloud Stream Time App Dependencies</description>
+
+    <parent>
+        <groupId>org.springframework.cloud.stream.app</groupId>
+        <artifactId>app-starters-core-dependencies</artifactId>
+        <version>1.1.0.BUILD-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <spring-integration-cassandra.version>0.5.0.RELEASE</spring-integration-cassandra.version>
+        <cassandra-all.version>2.1.5</cassandra-all.version>
+        <cassandra-unit-spring.version>2.1.9.2</cassandra-unit-spring.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud.stream.app</groupId>
+                <artifactId>spring-cloud-starter-stream-sink-cassandra</artifactId>
+                <version>1.1.0.BUILD-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.integration</groupId>
+                <artifactId>spring-integration-cassandra</artifactId>
+                <version>${spring-integration-cassandra.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cassandra</groupId>
+                <artifactId>cassandra-all</artifactId>
+                <version>${cassandra-all.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.cassandraunit</groupId>
+                <artifactId>cassandra-unit-spring</artifactId>
+                <version>${cassandra-unit-spring.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.cassandra</groupId>
+                        <artifactId>cassandra-all</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.datastax.cassandra</groupId>
+                        <artifactId>cassandra-driver-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
