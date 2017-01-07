@@ -19,8 +19,8 @@
 			<artifactId>spring-integration-cassandra</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.cassandra</groupId>
-			<artifactId>cassandra-all</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-cassandra</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.cassandraunit</groupId>
@@ -55,4 +55,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>

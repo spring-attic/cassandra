@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cassandra.core.WriteOptions;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.cassandra.CassandraConfiguration;
+import org.springframework.cloud.stream.app.cassandra.query.ColumnNameExtractor;
+import org.springframework.cloud.stream.app.cassandra.query.InsertQueryColumnNameExtractor;
+import org.springframework.cloud.stream.app.cassandra.query.UpdateQueryColumnNameExtractor;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -56,6 +57,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
  * @author Artem Bilan
  * @author Thomas Risberg
  * @author Ashu Gairola
+ * @author Akos Ratku
  */
 @EnableBinding(Sink.class)
 @Import(CassandraConfiguration.class)
@@ -81,7 +83,10 @@ public class CassandraSinkConfiguration {
 		AbstractMessageProducingHandler messageHandler;
 		if (StringUtils.hasText(this.cassandraSinkProperties.getIngestQuery())) {
 			messageHandler = new MessageTransformingHandler(
-					new PayloadToMatrixTransformer(this.cassandraSinkProperties.getIngestQuery()));
+					new PayloadToMatrixTransformer(this.cassandraSinkProperties.getIngestQuery(),
+							CassandraMessageHandler.Type.UPDATE == cassandraSinkProperties.getQueryType()
+									? new UpdateQueryColumnNameExtractor()
+									: new InsertQueryColumnNameExtractor()));
 		}
 		else {
 			messageHandler = new BridgeHandler();
@@ -131,8 +136,6 @@ public class CassandraSinkConfiguration {
 
 	private static class PayloadToMatrixTransformer extends AbstractPayloadTransformer<Object, List<List<Object>>> {
 
-		private static final Pattern PATTERN = Pattern.compile(".+\\((.+)\\).+(?:values\\s*\\((.+)\\))");
-
 		private final ObjectMapper objectMapper = new ObjectMapper();
 
 		private final JsonObjectMapper<?, ?> jsonObjectMapper = new Jackson2JsonObjectMapper(this.objectMapper);
@@ -141,24 +144,8 @@ public class CassandraSinkConfiguration {
 
 		private final ISO8601StdDateFormat dateFormat = new ISO8601StdDateFormat();
 
-		public PayloadToMatrixTransformer(String query) {
-			Matcher matcher = PATTERN.matcher(query);
-			if (matcher.matches()) {
-				String[] columns = StringUtils.delimitedListToStringArray(matcher.group(1), ",", " ");
-				String[] params = StringUtils.delimitedListToStringArray(matcher.group(2), ",", " ");
-				for (int i = 0; i < columns.length; i++) {
-					String param = params[i];
-					if (param.equals("?")) {
-						this.columns.add(columns[i]);
-					}
-					else if (param.startsWith(":")) {
-						this.columns.add(param.substring(1));
-					}
-				}
-			}
-			else {
-				throw new IllegalArgumentException("Invalid CQL insert query syntax: " + query);
-			}
+		public PayloadToMatrixTransformer(String query, ColumnNameExtractor columnNameExtractor) {
+			this.columns.addAll(columnNameExtractor.extract(query));
 			this.objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		}
 
