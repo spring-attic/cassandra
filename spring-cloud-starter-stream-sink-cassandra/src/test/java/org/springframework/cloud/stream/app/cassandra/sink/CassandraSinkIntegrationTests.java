@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package org.springframework.cloud.stream.app.cassandra.sink;
 
-import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.datastax.driver.core.querybuilder.Select;
-import com.datastax.driver.core.utils.UUIDs;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
 import org.cassandraunit.spring.CassandraUnitDependencyInjectionIntegrationTestExecutionListener;
 import org.cassandraunit.spring.EmbeddedCassandra;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
@@ -29,14 +31,11 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.IntegrationTestPropertiesListener;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.cloud.stream.annotation.Bindings;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.app.cassandra.domain.Book;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.data.cassandra.core.CassandraOperations;
@@ -44,29 +43,30 @@ import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.Assert.assertTrue;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
+import com.datastax.driver.core.utils.UUIDs;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * @author Artem Bilan
  * @author Thomas Risberg
  * @author Ashu Gairola
+ * @author Akos Ratku
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners(mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS,
-		listeners = {IntegrationTestPropertiesListener.class,
-				CassandraUnitDependencyInjectionIntegrationTestExecutionListener.class})
-@SpringApplicationConfiguration(CassandraSinkIntegrationTests.CassandraSinkApplication.class)
-@IntegrationTest({"cassandra.cluster.keyspace=" + CassandraSinkIntegrationTests.CASSANDRA_KEYSPACE,
-		"cassandra.cluster.createKeyspace=true",
-		"server.port=-1"})
+		listeners = CassandraUnitDependencyInjectionIntegrationTestExecutionListener.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
+		properties = {
+				"cassandra.cluster.keyspace=" + CassandraSinkIntegrationTests.CASSANDRA_KEYSPACE,
+				"cassandra.cluster.createKeyspace=true",
+				"server.port=-1" })
 @EmbeddedCassandra(configuration = EmbeddedCassandraServerHelper.CASSANDRA_RNDPORT_YML_FILE, timeout = 120000)
 @DirtiesContext
 public abstract class CassandraSinkIntegrationTests {
@@ -74,7 +74,6 @@ public abstract class CassandraSinkIntegrationTests {
 	public static final String CASSANDRA_KEYSPACE = "test";
 
 	@Autowired
-	@Bindings(CassandraSinkConfiguration.class)
 	protected Sink sink;
 
 	@Autowired
@@ -90,9 +89,10 @@ public abstract class CassandraSinkIntegrationTests {
 		System.clearProperty("cassandra.cluster.port");
 	}
 
-	@WebIntegrationTest({"cassandra.cluster.schema-action=RECREATE",
-			"cassandra.cluster.entity-base-packages=org.springframework.cloud.stream.app.cassandra.domain"})
-	@Ignore("Ignoring temporarily until the CI failure root cause is resolved")
+	@TestPropertySource(properties = {
+			"cassandra.cluster.schema-action=RECREATE",
+			"cassandra.cluster.entity-base-packages=org.springframework.cloud.stream.app.cassandra.domain" })
+	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
 	public static class CassandraEntityInsertTests extends CassandraSinkIntegrationTests {
 
 		@Test
@@ -123,10 +123,11 @@ public abstract class CassandraSinkIntegrationTests {
 
 	}
 
-	@WebIntegrationTest(randomPort = true, value = {"cassandra.cluster.init-script=init-db.cql",
-			"cassandra.ingest-query=insert into book (isbn, title, author, pages, saleDate, inStock) values (?, ?, ?, ?, ?, ?)"})
-	@Ignore("Ignoring temporarily until the CI failure root cause is resolved")
-	public static class CassandraSinkIngestTests extends CassandraSinkIntegrationTests {
+	@TestPropertySource(properties = {
+			"cassandra.cluster.init-script=init-db.cql",
+			"cassandra.ingest-query=insert into book (isbn, title, author, pages, saleDate, inStock) values (?, ?, ?, ?, ?, ?)" })
+	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
+	public static class CassandraSinkIngestInsertTests extends CassandraSinkIntegrationTests {
 
 		@Test
 		public void testIngestQuery() throws Exception {
@@ -154,9 +155,42 @@ public abstract class CassandraSinkIntegrationTests {
 
 	}
 
-	@WebIntegrationTest(randomPort = true, value = {"cassandra.cluster.init-script=init-db.cql",
-			"cassandra.ingest-query=insert into book (isbn, title, author, pages, saleDate, inStock) values (:myIsbn, :myTitle, :myAuthor, ?, ?, ?)"})
-	@Ignore("Ignoring temporarily until the CI failure root cause is resolved")
+	@TestPropertySource(properties = {
+			"cassandra.cluster.init-script=init-db.cql",
+			"cassandra.ingest-query=update book set inStock = :inStock, author = :author, pages = :pages, saleDate = :saleDate, title = :title where isbn = :isbn",
+			"cassandra.queryType=UPDATE" })
+	public static class CassandraSinkIngestUpdateTests extends CassandraSinkIntegrationTests {
+
+		@Test
+		public void testIngestQuery() throws Exception {
+			List<Book> books = getBookList(5);
+
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+			Jackson2JsonObjectMapper mapper = new Jackson2JsonObjectMapper(objectMapper);
+
+			this.sink.input().send(new GenericMessage<>(mapper.toJson(books)));
+
+			final Select select = QueryBuilder.select().all().from("book");
+
+			assertEqualsEventually(5, new Supplier<Integer>() {
+
+				@Override
+				public Integer get() {
+					return cassandraTemplate.select(select, Book.class).size();
+				}
+
+			});
+
+			this.cassandraTemplate.truncate("book");
+		}
+
+	}
+
+	@TestPropertySource(properties = {
+			"cassandra.cluster.init-script=init-db.cql",
+			"cassandra.ingest-query=insert into book (isbn, title, author, pages, saleDate, inStock) values (:myIsbn, :myTitle, :myAuthor, ?, ?, ?)" })
+	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
 	public static class CassandraSinkIngestNamedParamsTests extends CassandraSinkIntegrationTests {
 
 		@Test
