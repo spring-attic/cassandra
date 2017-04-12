@@ -28,6 +28,7 @@ import org.springframework.cassandra.config.CompressionType;
 import org.springframework.core.io.Resource;
 import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * Common properties for the cassandra modules.
@@ -36,6 +37,7 @@ import org.springframework.util.StringUtils;
  * @author Thomas Risberg
  */
 @ConfigurationProperties("cassandra.cluster")
+@Validated
 public class CassandraProperties {
 
 	/**
