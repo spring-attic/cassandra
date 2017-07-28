@@ -92,6 +92,17 @@ public class CassandraProperties {
 	private CompressionType compressionType = CompressionType.NONE;
 
 	/**
+	 * The flag to use SSL to connect
+	 */
+	private boolean useSsl;
+
+	/**
+	 * The flag to validate the Servers' SSL certs
+	 */
+
+	private boolean validateSsl = true;
+
+	/**
 	 * Enable/disable metrics collection for the created cluster.
 	 */
 	private boolean metricsEnabled = CassandraCqlClusterFactoryBean.DEFAULT_METRICS_ENABLED;
@@ -135,6 +146,11 @@ public class CassandraProperties {
 	public void setMetricsEnabled(boolean metricsEnabled) {
 		this.metricsEnabled = metricsEnabled;
 	}
+
+	public void setUseSsl(boolean useSsl) { this.useSsl = useSsl; }
+
+	public void setValidateSsl(boolean validateSsl) { this.validateSsl = validateSsl; }
+
 
 	@NotNull
 	public String getContactPoints() {
@@ -187,6 +203,13 @@ public class CassandraProperties {
 	public boolean isMetricsEnabled() {
 		return this.metricsEnabled;
 	}
+
+	public boolean isUseSsl() { return useSsl; }
+
+	public boolean isValidateSsl() { return validateSsl; }
+
+
+
 
 	@AssertFalse(message = "both 'username' and 'password' are required or neither one")
 	private boolean isInvalid() {

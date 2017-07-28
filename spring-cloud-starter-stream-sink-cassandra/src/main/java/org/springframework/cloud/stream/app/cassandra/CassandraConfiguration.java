@@ -16,14 +16,14 @@
 
 package org.springframework.cloud.stream.app.cassandra;
 
-import com.datastax.driver.core.AuthProvider;
-import com.datastax.driver.core.PlainTextAuthProvider;
-import com.datastax.driver.core.Session;
+import com.datastax.driver.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cassandra.config.ClusterBuilderConfigurer;
 import org.springframework.cassandra.config.CompressionType;
 import org.springframework.cassandra.core.CqlTemplate;
 import org.springframework.cassandra.core.keyspace.CreateKeyspaceSpecification;
+import org.springframework.cloud.stream.app.cassandra.util.NonValidatingSSLContextFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.data.cassandra.config.java.AbstractCassandraConfiguration;
@@ -104,6 +104,24 @@ public class CassandraConfiguration extends AbstractCassandraConfiguration {
 		}
 	}
 
+	@Override
+	protected ClusterBuilderConfigurer getClusterBuilderConfigurer() {
+		return new ClusterBuilderConfigurer() {
+			@Override
+			public Cluster.Builder configure(Cluster.Builder clusterBuilder) {
+				if(cassandraProperties.isUseSsl()) {
+					JdkSSLOptions.Builder optsBuilder = JdkSSLOptions.builder();
+					if(!cassandraProperties.isValidateSsl()) {
+						optsBuilder.withSSLContext(NonValidatingSSLContextFactory.getSslContext());
+					}
+					return clusterBuilder.withSSL(optsBuilder.build());
+				}
+				else {
+					return clusterBuilder;
+				}
+			}
+		};
+	}
 	/**
 	 * Inner class to execute init scripts on the provided {@code keyspace}.
 	 * It is here to bypass circular dependency with {@link Session} injection and
