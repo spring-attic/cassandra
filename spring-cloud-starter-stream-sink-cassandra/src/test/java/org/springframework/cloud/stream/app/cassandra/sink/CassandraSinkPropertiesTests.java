@@ -17,13 +17,14 @@ package org.springframework.cloud.stream.app.cassandra.sink;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
-import org.springframework.cassandra.core.ConsistencyLevel;
-import org.springframework.cassandra.core.RetryPolicy;
+import org.springframework.cloud.stream.app.cassandra.CassandraProperties;
+import org.springframework.cloud.stream.app.cassandra.util.CassandraRetryPolicy;
 import org.springframework.cloud.stream.config.SpelExpressionConverterConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.integration.cassandra.outbound.CassandraMessageHandler;
+
+import com.datastax.driver.core.ConsistencyLevel;
 
 /**
  * @author Thomas Risberg
@@ -41,22 +44,22 @@ public class CassandraSinkPropertiesTests {
 	@Test
 	public void consistencyLevelCanBeCustomized() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		EnvironmentTestUtils.addEnvironment(context, "CASSANDRA_CONSISTENCY_LEVEL:" + ConsistencyLevel.LOCAL_QUOROM);
+		EnvironmentTestUtils.addEnvironment(context, "CASSANDRA_CONSISTENCY_LEVEL:" + ConsistencyLevel.LOCAL_QUORUM);
 		context.register(Conf.class);
 		context.refresh();
 		CassandraSinkProperties properties = context.getBean(CassandraSinkProperties.class);
-		assertThat(properties.getConsistencyLevel(), equalTo(ConsistencyLevel.LOCAL_QUOROM));
+		assertThat(properties.getConsistencyLevel(), equalTo(ConsistencyLevel.LOCAL_QUORUM));
 		context.close();
 	}
 
 	@Test
 	public void retryPolicyCanBeCustomized() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		EnvironmentTestUtils.addEnvironment(context, "cassandra.retry-policy:" + RetryPolicy.DOWNGRADING_CONSISTENCY);
+		EnvironmentTestUtils.addEnvironment(context, "cassandra.retry-policy:" + CassandraRetryPolicy.DOWNGRADING_CONSISTENCY);
 		context.register(Conf.class);
 		context.refresh();
 		CassandraSinkProperties properties = context.getBean(CassandraSinkProperties.class);
-		assertThat(properties.getRetryPolicy(), equalTo(RetryPolicy.DOWNGRADING_CONSISTENCY));
+		assertThat(properties.getRetryPolicy(), equalTo(CassandraRetryPolicy.DOWNGRADING_CONSISTENCY));
 		context.close();
 	}
 
@@ -97,7 +100,7 @@ public class CassandraSinkPropertiesTests {
 	@Test
 	public void statementExpressionCanBeCustomized() {
 		String queryDsl = "Select(FOO.BAR).From(FOO)";
-		Expression expression =  new SpelExpressionParser().parseExpression(queryDsl);
+		Expression expression = new SpelExpressionParser().parseExpression(queryDsl);
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(context, "cassandra.statementExpression:" + queryDsl);
 		context.register(Conf.class);
@@ -107,10 +110,24 @@ public class CassandraSinkPropertiesTests {
 		context.close();
 	}
 
+	@Test
+	public void sslCanBeCustomized() {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		EnvironmentTestUtils.addEnvironment(context, "cassandra.cluster.useSsl:" + true);
+		EnvironmentTestUtils.addEnvironment(context, "cassandra.cluster.skipSslValidation:" + true);
+		context.register(Conf.class);
+		context.refresh();
+		CassandraProperties properties = context.getBean(CassandraProperties.class);
+		assertTrue(properties.isUseSsl());
+		assertTrue(properties.isSkipSslValidation());
+		context.close();
+	}
+
 	@Configuration
-	@EnableConfigurationProperties(CassandraSinkProperties.class)
+	@EnableConfigurationProperties({ CassandraProperties.class, CassandraSinkProperties.class })
 	@Import(SpelExpressionConverterConfiguration.class)
 	static class Conf {
+
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 package org.springframework.cloud.stream.app.cassandra.sink;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cassandra.core.ConsistencyLevel;
-import org.springframework.cassandra.core.RetryPolicy;
+import org.springframework.cloud.stream.app.cassandra.util.CassandraRetryPolicy;
 import org.springframework.expression.Expression;
 import org.springframework.integration.cassandra.outbound.CassandraMessageHandler;
+
+import com.datastax.driver.core.ConsistencyLevel;
 
 /**
  * @author Artem Bilan
@@ -37,7 +38,7 @@ public class CassandraSinkProperties {
 	/**
 	 * The retryPolicy option of WriteOptions.
 	 */
-	private RetryPolicy retryPolicy;
+	private CassandraRetryPolicy retryPolicy;
 
 	/**
 	 * The time-to-live option of WriteOptions.
@@ -60,23 +61,23 @@ public class CassandraSinkProperties {
 	private Expression statementExpression;
 
 	public ConsistencyLevel getConsistencyLevel() {
-		return consistencyLevel;
+		return this.consistencyLevel;
 	}
 
 	public void setConsistencyLevel(ConsistencyLevel consistencyLevel) {
 		this.consistencyLevel = consistencyLevel;
 	}
 
-	public RetryPolicy getRetryPolicy() {
-		return retryPolicy;
+	public CassandraRetryPolicy getRetryPolicy() {
+		return this.retryPolicy;
 	}
 
-	public void setRetryPolicy(RetryPolicy retryPolicy) {
+	public void setRetryPolicy(CassandraRetryPolicy retryPolicy) {
 		this.retryPolicy = retryPolicy;
 	}
 
 	public int getTtl() {
-		return ttl;
+		return this.ttl;
 	}
 
 	public void setTtl(int ttl) {
@@ -84,7 +85,7 @@ public class CassandraSinkProperties {
 	}
 
 	public CassandraMessageHandler.Type getQueryType() {
-		return queryType;
+		return this.queryType;
 	}
 
 	public void setQueryType(CassandraMessageHandler.Type queryType) {
@@ -92,7 +93,7 @@ public class CassandraSinkProperties {
 	}
 
 	public String getIngestQuery() {
-		return ingestQuery;
+		return this.ingestQuery;
 	}
 
 	public void setIngestQuery(String ingestQuery) {
@@ -100,7 +101,7 @@ public class CassandraSinkProperties {
 	}
 
 	public Expression getStatementExpression() {
-		return statementExpression;
+		return this.statementExpression;
 	}
 
 	public void setStatementExpression(Expression statementExpression) {

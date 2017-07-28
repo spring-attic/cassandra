@@ -65,8 +65,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
 		properties = {
 				"cassandra.cluster.keyspace=" + CassandraSinkIntegrationTests.CASSANDRA_KEYSPACE,
-				"cassandra.cluster.createKeyspace=true",
-				"server.port=-1" })
+				"cassandra.cluster.createKeyspace=true"})
 @EmbeddedCassandra(configuration = EmbeddedCassandraServerHelper.CASSANDRA_RNDPORT_YML_FILE, timeout = 120000)
 @DirtiesContext
 public abstract class CassandraSinkIntegrationTests {
@@ -92,7 +91,7 @@ public abstract class CassandraSinkIntegrationTests {
 	@TestPropertySource(properties = {
 			"cassandra.cluster.schema-action=RECREATE",
 			"cassandra.cluster.entity-base-packages=org.springframework.cloud.stream.app.cassandra.domain" })
-	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
+//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
 	public static class CassandraEntityInsertTests extends CassandraSinkIntegrationTests {
 
 		@Test
@@ -126,7 +125,7 @@ public abstract class CassandraSinkIntegrationTests {
 	@TestPropertySource(properties = {
 			"cassandra.cluster.init-script=init-db.cql",
 			"cassandra.ingest-query=insert into book (isbn, title, author, pages, saleDate, inStock) values (?, ?, ?, ?, ?, ?)" })
-	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
+//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
 	public static class CassandraSinkIngestInsertTests extends CassandraSinkIntegrationTests {
 
 		@Test
@@ -190,7 +189,7 @@ public abstract class CassandraSinkIntegrationTests {
 	@TestPropertySource(properties = {
 			"cassandra.cluster.init-script=init-db.cql",
 			"cassandra.ingest-query=insert into book (isbn, title, author, pages, saleDate, inStock) values (:myIsbn, :myTitle, :myAuthor, ?, ?, ?)" })
-	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
+//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
 	public static class CassandraSinkIngestNamedParamsTests extends CassandraSinkIntegrationTests {
 
 		@Test
