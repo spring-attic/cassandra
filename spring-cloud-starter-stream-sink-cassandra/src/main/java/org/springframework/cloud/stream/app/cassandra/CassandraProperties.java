@@ -100,7 +100,7 @@ public class CassandraProperties {
 	 * The flag to validate the Servers' SSL certs
 	 */
 
-	private boolean skipSslValidation = true;
+	private boolean skipSslValidation = false;
 
 	/**
 	 * Enable/disable metrics collection for the created cluster.

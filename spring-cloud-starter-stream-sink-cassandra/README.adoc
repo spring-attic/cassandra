@@ -18,9 +18,9 @@ $$cassandra.cluster.metrics-enabled$$:: $$Enable/disable metrics collection for 
 $$cassandra.cluster.password$$:: $$The password for connection.$$ *($$String$$, default: `$$<none>$$`)*
 $$cassandra.cluster.port$$:: $$The port to use to connect to the Cassandra host.$$ *($$Integer$$, default: `$$<none>$$`)*
 $$cassandra.cluster.schema-action$$:: $$The schema action to perform.$$ *($$SchemaAction$$, default: `$$<none>$$`, possible values: `NONE`,`CREATE`,`CREATE_IF_NOT_EXISTS`,`RECREATE`,`RECREATE_DROP_UNUSED`)*
+$$cassandra.cluster.skip-ssl-validation$$:: $$The flag to validate the Servers' SSL certs$$ *($$Boolean$$, default: `$$false$$`)*
 $$cassandra.cluster.use-ssl$$:: $$The flag to use SSL to connect$$ *($$Boolean$$, default: `$$false$$`)*
 $$cassandra.cluster.username$$:: $$The username for connection.$$ *($$String$$, default: `$$<none>$$`)*
-$$cassandra.cluster.validate-ssl$$:: $$The flag to validate the Servers' SSL certs$$ *($$Boolean$$, default: `$$true$$`)*
 $$cassandra.consistency-level$$:: $$The consistencyLevel option of WriteOptions.$$ *($$ConsistencyLevel$$, default: `$$<none>$$`, possible values: `ANY`,`ONE`,`TWO`,`THREE`,`QUOROM`,`LOCAL_QUOROM`,`EACH_QUOROM`,`ALL`,`LOCAL_ONE`,`SERIAL`,`LOCAL_SERIAL`,`QUORUM`,`LOCAL_QUORUM`,`EACH_QUORUM`)*
 $$cassandra.ingest-query$$:: $$The ingest Cassandra query.$$ *($$String$$, default: `$$<none>$$`)*
 $$cassandra.query-type$$:: $$The queryType for Cassandra Sink.$$ *($$Type$$, default: `$$<none>$$`, possible values: `INSERT`,`UPDATE`,`DELETE`,`STATEMENT`)*
