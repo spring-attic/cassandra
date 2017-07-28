@@ -100,7 +100,7 @@ public class CassandraProperties {
 	 * The flag to validate the Servers' SSL certs
 	 */
 
-	private boolean validateSsl = true;
+	private boolean skipSslValidation = true;
 
 	/**
 	 * Enable/disable metrics collection for the created cluster.
@@ -149,8 +149,7 @@ public class CassandraProperties {
 
 	public void setUseSsl(boolean useSsl) { this.useSsl = useSsl; }
 
-	public void setValidateSsl(boolean validateSsl) { this.validateSsl = validateSsl; }
-
+	public void setSkipSslValidation(boolean skipSslValidation) { this.skipSslValidation = skipSslValidation; }
 
 	@NotNull
 	public String getContactPoints() {
@@ -206,10 +205,7 @@ public class CassandraProperties {
 
 	public boolean isUseSsl() { return useSsl; }
 
-	public boolean isValidateSsl() { return validateSsl; }
-
-
-
+	public boolean isSkipSslValidation() { return skipSslValidation; }
 
 	@AssertFalse(message = "both 'username' and 'password' are required or neither one")
 	private boolean isInvalid() {

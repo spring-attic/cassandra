@@ -111,7 +111,7 @@ public class CassandraConfiguration extends AbstractCassandraConfiguration {
 			public Cluster.Builder configure(Cluster.Builder clusterBuilder) {
 				if(cassandraProperties.isUseSsl()) {
 					JdkSSLOptions.Builder optsBuilder = JdkSSLOptions.builder();
-					if(!cassandraProperties.isValidateSsl()) {
+					if(cassandraProperties.isSkipSslValidation()) {
 						optsBuilder.withSSLContext(NonValidatingSSLContextFactory.getSslContext());
 					}
 					return clusterBuilder.withSSL(optsBuilder.build());
