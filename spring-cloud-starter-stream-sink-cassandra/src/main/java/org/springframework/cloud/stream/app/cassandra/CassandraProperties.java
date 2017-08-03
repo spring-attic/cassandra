@@ -35,6 +35,7 @@ import org.springframework.validation.annotation.Validated;
  *
  * @author Artem Bilan
  * @author Thomas Risberg
+ * @author Rob Hardt
  */
 @ConfigurationProperties("cassandra.cluster")
 @Validated
@@ -147,9 +148,9 @@ public class CassandraProperties {
 		this.metricsEnabled = metricsEnabled;
 	}
 
-	public void setUseSsl(boolean useSsl) { this.useSsl = useSsl; }
+	public void setUseSsl(boolean useSsl) { this.useSsl = this.useSsl; }
 
-	public void setSkipSslValidation(boolean skipSslValidation) { this.skipSslValidation = skipSslValidation; }
+	public void setSkipSslValidation(boolean skipSslValidation) { this.skipSslValidation = this.skipSslValidation; }
 
 	@NotNull
 	public String getContactPoints() {
@@ -203,9 +204,9 @@ public class CassandraProperties {
 		return this.metricsEnabled;
 	}
 
-	public boolean isUseSsl() { return useSsl; }
+	public boolean isUseSsl() { return this.useSsl; }
 
-	public boolean isSkipSslValidation() { return skipSslValidation; }
+	public boolean isSkipSslValidation() { return this.skipSslValidation; }
 
 	@AssertFalse(message = "both 'username' and 'password' are required or neither one")
 	private boolean isInvalid() {

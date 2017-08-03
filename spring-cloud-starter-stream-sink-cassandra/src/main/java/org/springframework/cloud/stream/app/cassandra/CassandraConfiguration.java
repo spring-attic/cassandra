@@ -16,7 +16,11 @@
 
 package org.springframework.cloud.stream.app.cassandra;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.AuthProvider;
+import com.datastax.driver.core.PlainTextAuthProvider;
+import com.datastax.driver.core.JdkSSLOptions;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Cluster;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cassandra.config.ClusterBuilderConfigurer;
@@ -31,6 +35,8 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
@@ -38,6 +44,7 @@ import java.util.Scanner;
 /**
  * @author Artem Bilan
  * @author Thomas Risberg
+ * @author Rob Hardt
  */
 @Configuration
 @EnableConfigurationProperties(CassandraProperties.class)
@@ -112,7 +119,11 @@ public class CassandraConfiguration extends AbstractCassandraConfiguration {
 				if(cassandraProperties.isUseSsl()) {
 					JdkSSLOptions.Builder optsBuilder = JdkSSLOptions.builder();
 					if(cassandraProperties.isSkipSslValidation()) {
-						optsBuilder.withSSLContext(NonValidatingSSLContextFactory.getSslContext());
+						try {
+							optsBuilder.withSSLContext(NonValidatingSSLContextFactory.getSslContext());
+						} catch (NoSuchAlgorithmException | KeyManagementException e) {
+							throw new RuntimeException("Unable to configure a Cassandra cluster using SSL.", e);
+						}
 					}
 					return clusterBuilder.withSSL(optsBuilder.build());
 				}
