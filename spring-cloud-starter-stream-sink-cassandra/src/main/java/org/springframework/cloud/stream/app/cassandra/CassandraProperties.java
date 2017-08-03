@@ -35,6 +35,7 @@ import org.springframework.validation.annotation.Validated;
  *
  * @author Artem Bilan
  * @author Thomas Risberg
+ * @author Rob Hardt
  */
 @ConfigurationProperties("cassandra.cluster")
 @Validated
@@ -92,6 +93,17 @@ public class CassandraProperties {
 	private CompressionType compressionType = CompressionType.NONE;
 
 	/**
+	 * The flag to use SSL to connect
+	 */
+	private boolean useSsl;
+
+	/**
+	 * The flag to validate the Servers' SSL certs
+	 */
+
+	private boolean skipSslValidation = false;
+
+	/**
 	 * Enable/disable metrics collection for the created cluster.
 	 */
 	private boolean metricsEnabled = CassandraCqlClusterFactoryBean.DEFAULT_METRICS_ENABLED;
@@ -135,6 +147,10 @@ public class CassandraProperties {
 	public void setMetricsEnabled(boolean metricsEnabled) {
 		this.metricsEnabled = metricsEnabled;
 	}
+
+	public void setUseSsl(boolean useSsl) { this.useSsl = this.useSsl; }
+
+	public void setSkipSslValidation(boolean skipSslValidation) { this.skipSslValidation = this.skipSslValidation; }
 
 	@NotNull
 	public String getContactPoints() {
@@ -187,6 +203,10 @@ public class CassandraProperties {
 	public boolean isMetricsEnabled() {
 		return this.metricsEnabled;
 	}
+
+	public boolean isUseSsl() { return this.useSsl; }
+
+	public boolean isSkipSslValidation() { return this.skipSslValidation; }
 
 	@AssertFalse(message = "both 'username' and 'password' are required or neither one")
 	private boolean isInvalid() {
