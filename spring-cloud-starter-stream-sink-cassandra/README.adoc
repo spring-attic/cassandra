@@ -3,6 +3,22 @@
 
 This sink application writes the content of each message it receives into Cassandra.
 
+It expects a payload of JSON String and uses it's properties to map to table columns.
+
+== Input
+
+*Headers:*
+
+ * `Content-Type: application/json`
+
+*Payload:*
+
+A JSON String or byte array representing the entity (or a list of entities) to be persisted
+
+== Output
+
+ N/A
+
 == Options
 
 The **$$cassandra$$** $$sink$$ has the following options:
@@ -35,5 +51,14 @@ $$cassandra.ttl$$:: $$The time-to-live option of WriteOptions.$$ *($$Integer$$, 
 
 ```
 $ mvn clean package
+```
+
+== Examples
+
+The following example assumes a JSON payload is sent to a default destination called `input`, the sink parses some of its properties (id,time,customer_id,value) and persist them into a table called `test`.
+
+```
+java -jar cassandra_sink.jar --cassandra.cluster.keyspace=test
+--cassandra.ingest-query=insert into orders(id,time,customer_id, value) values (?,?,?,?)"
 ```
 
