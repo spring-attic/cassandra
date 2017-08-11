@@ -45,8 +45,6 @@ $$cassandra.statement-expression$$:: $$The expression in Cassandra query DSL sty
 $$cassandra.ttl$$:: $$The time-to-live option of WriteOptions.$$ *($$Integer$$, default: `$$0$$`)*
 //end::configuration-properties[]
 
-//end::ref-doc[]
-
 == Build
 
 ```
@@ -59,6 +57,7 @@ The following example assumes a JSON payload is sent to a default destination ca
 
 ```
 java -jar cassandra_sink.jar --cassandra.cluster.keyspace=test
---cassandra.ingest-query=insert into orders(id,time,customer_id, value) values (?,?,?,?)"
+--cassandra.ingest-query="insert into orders(id,time,customer_id, value) values (?,?,?,?)"
 ```
 
+//end::ref-doc[]
