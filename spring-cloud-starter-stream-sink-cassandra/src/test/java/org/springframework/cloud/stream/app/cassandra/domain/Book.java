@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors
+ * Copyright 2015-2019 the original author or authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 
 package org.springframework.cloud.stream.app.cassandra.domain;
 
-import org.springframework.data.cassandra.mapping.PrimaryKey;
-import org.springframework.data.cassandra.mapping.Table;
-
 import java.util.Date;
 import java.util.UUID;
 
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
+
 /**
  * Test POJO
+ *
  * @author David Webb
+ * @author Artem Bilan
  */
 @Table("book")
 public class Book {
@@ -55,14 +57,14 @@ public class Book {
 	 * @return Returns the isbn.
 	 */
 	public UUID getIsbn() {
-		return isbn;
+		return this.isbn;
 	}
 
 	/**
 	 * @return Returns the saleDate.
 	 */
 	public Date getSaleDate() {
-		return saleDate;
+		return this.saleDate;
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class Book {
 	 * @return Returns the title.
 	 */
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 
 	/**
@@ -111,7 +113,7 @@ public class Book {
 	 * @return Returns the author.
 	 */
 	public String getAuthor() {
-		return author;
+		return this.author;
 	}
 
 	/**
@@ -125,7 +127,7 @@ public class Book {
 	 * @return Returns the pages.
 	 */
 	public int getPages() {
-		return pages;
+		return this.pages;
 	}
 
 	/**
@@ -135,13 +137,10 @@ public class Book {
 		this.pages = pages;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
-		return ("isbn -> " + isbn) + "\n" + "tile -> " + title + "\n" + "author -> " + author
-				+ "\n" + "pages -> " + pages + "\n";
+		return ("isbn -> " + this.isbn) + "\n" + "tile -> " + this.title + "\n" + "author -> " + this.author
+				+ "\n" + "pages -> " + this.pages + "\n";
 	}
 
 }

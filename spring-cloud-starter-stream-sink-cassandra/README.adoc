@@ -24,25 +24,35 @@ A JSON String or byte array representing the entity (or a list of entities) to b
 The **$$cassandra$$** $$sink$$ has the following options:
 
 //tag::configuration-properties[]
-$$cassandra.cluster.compression-type$$:: $$The compression to use for the transport.$$ *($$CompressionType$$, default: `$$<none>$$`, possible values: `NONE`,`SNAPPY`,`LZ4`)*
-$$cassandra.cluster.contact-points$$:: $$The comma-delimited string of the hosts to connect to Cassandra.$$ *($$String$$, default: `$$<none>$$`)*
-$$cassandra.cluster.create-keyspace$$:: $$The flag to create (or not) keyspace on application startup.$$ *($$Boolean$$, default: `$$false$$`)*
-$$cassandra.cluster.entity-base-packages$$:: $$The base packages to scan for entities annotated with Table annotations.$$ *($$String[]$$, default: `$$[]$$`)*
-$$cassandra.cluster.init-script$$:: $$The resource with CQL scripts (delimited by ';') to initialize keyspace schema.$$ *($$Resource$$, default: `$$<none>$$`)*
-$$cassandra.cluster.keyspace$$:: $$The keyspace name to connect to.$$ *($$String$$, default: `$$<none>$$`)*
+$$cassandra.async$$:: $$Async mode for CassandraMessageHandler.$$ *($$Boolean$$, default: `$$true$$`)*
+$$cassandra.cluster.create-keyspace$$:: $$Flag to create (or not) keyspace on application startup.$$ *($$Boolean$$, default: `$$false$$`)*
+$$cassandra.cluster.entity-base-packages$$:: $$Base packages to scan for entities annotated with Table annotations.$$ *($$String[]$$, default: `$$[]$$`)*
+$$cassandra.cluster.init-script$$:: $$Resource with CQL scripts (delimited by ';') to initialize keyspace schema.$$ *($$Resource$$, default: `$$<none>$$`)*
 $$cassandra.cluster.metrics-enabled$$:: $$Enable/disable metrics collection for the created cluster.$$ *($$Boolean$$, default: `$$<none>$$`)*
-$$cassandra.cluster.password$$:: $$The password for connection.$$ *($$String$$, default: `$$<none>$$`)*
-$$cassandra.cluster.port$$:: $$The port to use to connect to the Cassandra host.$$ *($$Integer$$, default: `$$<none>$$`)*
-$$cassandra.cluster.schema-action$$:: $$The schema action to perform.$$ *($$SchemaAction$$, default: `$$<none>$$`, possible values: `NONE`,`CREATE`,`CREATE_IF_NOT_EXISTS`,`RECREATE`,`RECREATE_DROP_UNUSED`)*
-$$cassandra.cluster.skip-ssl-validation$$:: $$The flag to validate the Servers' SSL certs$$ *($$Boolean$$, default: `$$false$$`)*
-$$cassandra.cluster.use-ssl$$:: $$The flag to use SSL to connect$$ *($$Boolean$$, default: `$$false$$`)*
-$$cassandra.cluster.username$$:: $$The username for connection.$$ *($$String$$, default: `$$<none>$$`)*
-$$cassandra.consistency-level$$:: $$The consistencyLevel option of WriteOptions.$$ *($$ConsistencyLevel$$, default: `$$<none>$$`, possible values: `ANY`,`ONE`,`TWO`,`THREE`,`ALL`,`LOCAL_ONE`,`SERIAL`,`LOCAL_SERIAL`,`QUORUM`,`LOCAL_QUORUM`,`EACH_QUORUM`)*
-$$cassandra.ingest-query$$:: $$The ingest Cassandra query.$$ *($$String$$, default: `$$<none>$$`)*
-$$cassandra.query-type$$:: $$The queryType for Cassandra Sink.$$ *($$Type$$, default: `$$<none>$$`, possible values: `INSERT`,`UPDATE`,`DELETE`,`STATEMENT`)*
-$$cassandra.retry-policy$$:: $$The retryPolicy option of WriteOptions.$$ *($$CassandraRetryPolicy$$, default: `$$<none>$$`, possible values: `DEFAULT`,`DOWNGRADING_CONSISTENCY`,`FALLTHROUGH`,`LOGGING`)*
-$$cassandra.statement-expression$$:: $$The expression in Cassandra query DSL style.$$ *($$Expression$$, default: `$$<none>$$`)*
-$$cassandra.ttl$$:: $$The time-to-live option of WriteOptions.$$ *($$Integer$$, default: `$$0$$`)*
+$$cassandra.cluster.skip-ssl-validation$$:: $$Flag to validate the Servers' SSL certs$$ *($$Boolean$$, default: `$$false$$`)*
+$$cassandra.consistency-level$$:: $$The consistency level for write operation.$$ *($$ConsistencyLevel$$, default: `$$<none>$$`, possible values: `ANY`,`ONE`,`TWO`,`THREE`,`QUORUM`,`ALL`,`LOCAL_QUORUM`,`EACH_QUORUM`,`SERIAL`,`LOCAL_SERIAL`,`LOCAL_ONE`)*
+$$cassandra.ingest-query$$:: $$Ingest Cassandra query.$$ *($$String$$, default: `$$<none>$$`)*
+$$cassandra.query-type$$:: $$QueryType for Cassandra Sink.$$ *($$Type$$, default: `$$<none>$$`, possible values: `INSERT`,`UPDATE`,`DELETE`,`STATEMENT`)*
+$$cassandra.statement-expression$$:: $$Expression in Cassandra query DSL style.$$ *($$Expression$$, default: `$$<none>$$`)*
+$$cassandra.ttl$$:: $$Time-to-live option of WriteOptions.$$ *($$Integer$$, default: `$$0$$`)*
+$$spring.data.cassandra.cluster-name$$:: $$Name of the Cassandra cluster.$$ *($$String$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.compression$$:: $$Compression supported by the Cassandra binary protocol.$$ *($$Compression$$, default: `$$none$$`, possible values: ``,`snappy`,`lz4`)*
+$$spring.data.cassandra.connect-timeout$$:: $$Socket option: connection time out.$$ *($$Duration$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.consistency-level$$:: $$Queries consistency level.$$ *($$ConsistencyLevel$$, default: `$$<none>$$`, possible values: `ANY`,`ONE`,`TWO`,`THREE`,`QUORUM`,`ALL`,`LOCAL_QUORUM`,`EACH_QUORUM`,`SERIAL`,`LOCAL_SERIAL`,`LOCAL_ONE`)*
+$$spring.data.cassandra.contact-points$$:: $$Cluster node addresses.$$ *($$List<String>$$, default: `$$[localhost]$$`)*
+$$spring.data.cassandra.fetch-size$$:: $$Queries default fetch size.$$ *($$Integer$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.jmx-enabled$$:: $$Whether to enable JMX reporting. Default to false as Cassandra JMX reporting is not compatible with Dropwizard Metrics.$$ *($$Boolean$$, default: `$$false$$`)*
+$$spring.data.cassandra.keyspace-name$$:: $$Keyspace name to use.$$ *($$String$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.load-balancing-policy$$:: $$Class name of the load balancing policy. The class must have a default constructor.$$ *($$Class<LoadBalancingPolicy>$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.password$$:: $$Login password of the server.$$ *($$String$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.port$$:: $$Port of the Cassandra server.$$ *($$Integer$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.read-timeout$$:: $$Socket option: read time out.$$ *($$Duration$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.reconnection-policy$$:: $$Class name of the reconnection policy. The class must have a default constructor.$$ *($$Class<ReconnectionPolicy>$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.retry-policy$$:: $$Class name of the retry policy. The class must have a default constructor.$$ *($$Class<RetryPolicy>$$, default: `$$<none>$$`)*
+$$spring.data.cassandra.schema-action$$:: $$Schema action to take at startup.$$ *($$String$$, default: `$$none$$`)*
+$$spring.data.cassandra.serial-consistency-level$$:: $$Queries serial consistency level.$$ *($$ConsistencyLevel$$, default: `$$<none>$$`, possible values: `ANY`,`ONE`,`TWO`,`THREE`,`QUORUM`,`ALL`,`LOCAL_QUORUM`,`EACH_QUORUM`,`SERIAL`,`LOCAL_SERIAL`,`LOCAL_ONE`)*
+$$spring.data.cassandra.ssl$$:: $$Enable SSL support.$$ *($$Boolean$$, default: `$$false$$`)*
+$$spring.data.cassandra.username$$:: $$Login user of the server.$$ *($$String$$, default: `$$<none>$$`)*
 //end::configuration-properties[]
 
 == Build
@@ -51,7 +61,8 @@ $$cassandra.ttl$$:: $$The time-to-live option of WriteOptions.$$ *($$Integer$$, 
 $ ./mvnw clean install -PgenerateApps
 $ cd apps
 ```
-You can find the corresponding binder based projects here. You can then cd into one of the folders and build it:
+You can find the corresponding binder based projects here.
+You can then cd into one of the folders and build it:
 ```
 $ ./mvnw clean package
 ```

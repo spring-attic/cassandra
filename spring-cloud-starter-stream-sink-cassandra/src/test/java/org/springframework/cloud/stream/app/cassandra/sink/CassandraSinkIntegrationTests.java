@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package org.springframework.cloud.stream.app.cassandra.sink;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
+import static org.springframework.integration.test.matcher.EqualsResultMatcher.equalsResult;
+import static org.springframework.integration.test.matcher.EventuallyMatcher.eventually;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,7 +30,6 @@ import org.cassandraunit.spring.EmbeddedCassandra;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,6 +46,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
 import com.datastax.driver.core.querybuilder.QueryBuilder;
@@ -59,12 +61,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  * @author Ashu Gairola
  * @author Akos Ratku
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @TestExecutionListeners(mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS,
 		listeners = CassandraUnitDependencyInjectionIntegrationTestExecutionListener.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
 		properties = {
-				"cassandra.cluster.keyspace=" + CassandraSinkIntegrationTests.CASSANDRA_KEYSPACE,
+				"spring.data.cassandra.keyspaceName=" + CassandraSinkIntegrationTests.CASSANDRA_KEYSPACE,
 				"cassandra.cluster.createKeyspace=true"})
 @EmbeddedCassandra(configuration = EmbeddedCassandraServerHelper.CASSANDRA_RNDPORT_YML_FILE, timeout = 120000)
 @DirtiesContext
@@ -80,22 +82,23 @@ public abstract class CassandraSinkIntegrationTests {
 
 	@BeforeClass
 	public static void setUp() {
-		System.setProperty("cassandra.cluster.port", "" + EmbeddedCassandraServerHelper.getNativeTransportPort());
+		EmbeddedCassandraServerHelper.getSession();
+		System.setProperty("spring.data.cassandra.port", "" + EmbeddedCassandraServerHelper.getNativeTransportPort());
 	}
 
 	@AfterClass
 	public static void cleanup() {
-		System.clearProperty("cassandra.cluster.port");
+		System.clearProperty("spring.data.cassandra.port");
 	}
 
 	@TestPropertySource(properties = {
-			"cassandra.cluster.schema-action=RECREATE",
+			"spring.data.cassandra.schema-action=RECREATE",
 			"cassandra.cluster.entity-base-packages=org.springframework.cloud.stream.app.cassandra.domain" })
-//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
+	//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
 	public static class CassandraEntityInsertTests extends CassandraSinkIntegrationTests {
 
 		@Test
-		public void testInsert() throws InterruptedException {
+		public void testInsert() {
 			Book book = new Book();
 			book.setIsbn(UUIDs.timeBased());
 			book.setTitle("Spring Integration Cassandra");
@@ -108,14 +111,7 @@ public abstract class CassandraSinkIntegrationTests {
 
 			final Select select = QueryBuilder.select().all().from("book");
 
-			assertEqualsEventually(1, new Supplier<Integer>() {
-
-				@Override
-				public Integer get() {
-					return cassandraTemplate.select(select, Book.class).size();
-				}
-
-			});
+			assertThat(1, eventually(equalsResult(() -> cassandraTemplate.select(select, Book.class).size())));
 
 			this.cassandraTemplate.delete(book);
 		}
@@ -124,8 +120,9 @@ public abstract class CassandraSinkIntegrationTests {
 
 	@TestPropertySource(properties = {
 			"cassandra.cluster.init-script=init-db.cql",
-			"cassandra.ingest-query=insert into book (isbn, title, author, pages, saleDate, inStock) values (?, ?, ?, ?, ?, ?)" })
-//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
+			"cassandra.ingest-query=" +
+					"insert into book (isbn, title, author, pages, saleDate, inStock) values (?, ?, ?, ?, ?, ?)" })
+	//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
 	public static class CassandraSinkIngestInsertTests extends CassandraSinkIntegrationTests {
 
 		@Test
@@ -140,23 +137,18 @@ public abstract class CassandraSinkIntegrationTests {
 
 			final Select select = QueryBuilder.select().all().from("book");
 
-			assertEqualsEventually(5, new Supplier<Integer>() {
+			assertThat(5, eventually(equalsResult(() -> cassandraTemplate.select(select, Book.class).size())));
 
-				@Override
-				public Integer get() {
-					return cassandraTemplate.select(select, Book.class).size();
-				}
-
-			});
-
-			this.cassandraTemplate.truncate("book");
+			this.cassandraTemplate.truncate(Book.class);
 		}
 
 	}
 
 	@TestPropertySource(properties = {
 			"cassandra.cluster.init-script=init-db.cql",
-			"cassandra.ingest-query=update book set inStock = :inStock, author = :author, pages = :pages, saleDate = :saleDate, title = :title where isbn = :isbn",
+			"cassandra.ingest-query=" +
+					"update book set inStock = :inStock, author = :author, pages = :pages, " +
+					"saleDate = :saleDate, title = :title where isbn = :isbn",
 			"cassandra.queryType=UPDATE" })
 	public static class CassandraSinkIngestUpdateTests extends CassandraSinkIntegrationTests {
 
@@ -172,24 +164,19 @@ public abstract class CassandraSinkIntegrationTests {
 
 			final Select select = QueryBuilder.select().all().from("book");
 
-			assertEqualsEventually(5, new Supplier<Integer>() {
+			assertThat(5, eventually(equalsResult(() -> cassandraTemplate.select(select, Book.class).size())));
 
-				@Override
-				public Integer get() {
-					return cassandraTemplate.select(select, Book.class).size();
-				}
-
-			});
-
-			this.cassandraTemplate.truncate("book");
+			this.cassandraTemplate.truncate(Book.class);
 		}
 
 	}
 
 	@TestPropertySource(properties = {
 			"cassandra.cluster.init-script=init-db.cql",
-			"cassandra.ingest-query=insert into book (isbn, title, author, pages, saleDate, inStock) values (:myIsbn, :myTitle, :myAuthor, ?, ?, ?)" })
-//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
+			"cassandra.ingest-query=" +
+					"insert into book (isbn, title, author, pages, saleDate, inStock) " +
+					"values (:myIsbn, :myTitle, :myAuthor, ?, ?, ?)" })
+	//	@Ignore("Looks like Embedded Cassandra is still unstable. Consider to use external for testing")
 	public static class CassandraSinkIngestNamedParamsTests extends CassandraSinkIntegrationTests {
 
 		@Test
@@ -208,17 +195,11 @@ public abstract class CassandraSinkIntegrationTests {
 
 			final Select select = QueryBuilder.select().all().from("book");
 
-			assertEqualsEventually(5, new Supplier<Integer>() {
+			assertThat(5, eventually(equalsResult(() -> cassandraTemplate.select(select, Book.class).size())));
 
-				@Override
-				public Integer get() {
-					return cassandraTemplate.select(select, Book.class).size();
-				}
-
-			});
-
-			this.cassandraTemplate.truncate("book");
+			this.cassandraTemplate.truncate(Book.class);
 		}
+
 	}
 
 	private static List<Book> getBookList(int numBooks) {
@@ -229,8 +210,8 @@ public abstract class CassandraSinkIntegrationTests {
 		for (int i = 0; i < numBooks; i++) {
 			b = new Book();
 			b.setIsbn(UUID.randomUUID());
-			b.setTitle("Spring XD Guide");
-			b.setAuthor("XD Guru");
+			b.setTitle("Spring Cloud Data Flow Guide");
+			b.setAuthor("SCDF Guru");
 			b.setPages(i * 10 + 5);
 			b.setInStock(true);
 			b.setSaleDate(new Date());
@@ -238,20 +219,6 @@ public abstract class CassandraSinkIntegrationTests {
 		}
 
 		return books;
-	}
-
-	private static <T> void assertEqualsEventually(T expected, Supplier<T> actualSupplier) throws InterruptedException {
-		int n = 0;
-		while (!actualSupplier.get().equals(expected) && n++ < 100) {
-			Thread.sleep(100);
-		}
-		assertTrue(n < 10);
-	}
-
-	private interface Supplier<T> {
-
-		T get();
-
 	}
 
 	@SpringBootApplication
