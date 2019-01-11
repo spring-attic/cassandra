@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.cloud.stream.app.cassandra.sink;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.stream.app.cassandra.util.CassandraRetryPolicy;
 import org.springframework.expression.Expression;
 import org.springframework.integration.cassandra.outbound.CassandraMessageHandler;
 
@@ -31,50 +30,34 @@ import com.datastax.driver.core.ConsistencyLevel;
 public class CassandraSinkProperties {
 
 	/**
-	 * The consistencyLevel option of WriteOptions.
-	 */
-	private ConsistencyLevel consistencyLevel;
-
-	/**
-	 * The retryPolicy option of WriteOptions.
-	 */
-	private CassandraRetryPolicy retryPolicy;
-
-	/**
-	 * The time-to-live option of WriteOptions.
+	 * Time-to-live option of WriteOptions.
 	 */
 	private int ttl;
 
 	/**
-	 * The queryType for Cassandra Sink.
+	 * QueryType for Cassandra Sink.
 	 */
 	private CassandraMessageHandler.Type queryType;
 
 	/**
-	 * The ingest Cassandra query.
+	 * Ingest Cassandra query.
 	 */
 	private String ingestQuery;
 
 	/**
-	 * The expression in Cassandra query DSL style.
+	 * Expression in Cassandra query DSL style.
 	 */
 	private Expression statementExpression;
 
-	public ConsistencyLevel getConsistencyLevel() {
-		return this.consistencyLevel;
-	}
+	/**
+	 * Async mode for CassandraMessageHandler.
+	 */
+	private boolean async = true;
 
-	public void setConsistencyLevel(ConsistencyLevel consistencyLevel) {
-		this.consistencyLevel = consistencyLevel;
-	}
-
-	public CassandraRetryPolicy getRetryPolicy() {
-		return this.retryPolicy;
-	}
-
-	public void setRetryPolicy(CassandraRetryPolicy retryPolicy) {
-		this.retryPolicy = retryPolicy;
-	}
+	/**
+	 * The consistency level for write operation.
+	 */
+	private ConsistencyLevel consistencyLevel;
 
 	public int getTtl() {
 		return this.ttl;
@@ -106,6 +89,22 @@ public class CassandraSinkProperties {
 
 	public void setStatementExpression(Expression statementExpression) {
 		this.statementExpression = statementExpression;
+	}
+
+	public ConsistencyLevel getConsistencyLevel() {
+		return this.consistencyLevel;
+	}
+
+	public void setConsistencyLevel(ConsistencyLevel consistencyLevel) {
+		this.consistencyLevel = consistencyLevel;
+	}
+
+	public boolean isAsync() {
+		return this.async;
+	}
+
+	public void setAsync(boolean async) {
+		this.async = async;
 	}
 
 }
