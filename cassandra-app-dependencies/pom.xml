@@ -18,7 +18,7 @@
 	</parent>
 
 	<properties>
-		<spring-integration-cassandra.version>0.6.0.BUILD-SNAPSHOT</spring-integration-cassandra.version>
+		<spring-integration-cassandra.version>0.6.0.RELEASE</spring-integration-cassandra.version>
 		<cassandra-unit-spring.version>3.5.0.1</cassandra-unit-spring.version>
 	</properties>
 
