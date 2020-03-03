@@ -53,6 +53,7 @@
 							<testsIgnored>true</testsIgnored>
 						</cassandra-sink>
 					</generatedApps>
+					<enableContainerImageMetadata>true</enableContainerImageMetadata>
 				</configuration>
 			</plugin>
 		</plugins>
